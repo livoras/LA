@@ -1,11 +1,18 @@
 util = require "./util.coffee"
-{$, log} = util
+{$, log, assert} = util
 
-loading = require "./loading.coffee"
-slideEffect = require "./slide-effect.coffee"
+#######################################
+##### SHOULD BE REMOVE AFTER TEST #####
+test = require "../../test/test.coffee"
+test.run()
+#######################################
 
-loading.init()
+# loading = require "./loading.coffee"
+# slideEffect = require "./slide-effect.coffee"
 
-window.addEventListener "load", (event)->
-    slideEffect.init()
-    loading.remove()
+# loading.init()
+
+# window.addEventListener "load", (event)->
+#     slideEffect.init()
+#     loading.remove()
+

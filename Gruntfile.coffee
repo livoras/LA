@@ -30,7 +30,7 @@ module.exports = (grunt)->
       compile:
         options:
           livereload: true
-        files: ['src/**/*.coffee', 'src/**/*.less', 'src/**/*.html', 'index.html']
+        files: ['test/**/*.coffee', 'src/**/*.coffee', 'src/**/*.less', 'src/**/*.html', 'index.html']
         tasks: ['browserify', 'less']
 
     less:    

@@ -59,34 +59,38 @@ swipeUp = (event)->
     if isMoving then return
     if Math.abs(currPoint - startPoint) > CONTENT_HEIGHT * 0.4
         isMoving = yes
-        TweenLite.to nextPage.dom, DURATION, {"top": "0px", onComplete: next}
+        TweenLite.to nextPage.dom, DURATION, {"y": "0px", onComplete: next}
     else
-        TweenLite.to nextPage.dom, DURATION, {"top": nextPage.originTop}
+        TweenLite.to nextPage.dom, DURATION, {"y": "#{nextPage.originTop}px"}
 
 swipeDown = ->    
     if isMoving or not prevPage then return
     if currPage.index is 0 and not isReachedEnd then return
     if Math.abs(currPoint - startPoint) > CONTENT_HEIGHT * 0.4
         isMoving = yes
-        TweenLite.to currPage.dom, DURATION, {"top": "#{READY_TOP}px", onComplete: prev}
+        TweenLite.to currPage.dom, DURATION, {"y": "#{READY_TOP}px", onComplete: prev}
     else
-        TweenLite.to currPage.dom, DURATION, {"top": currPage.originTop}
+        TweenLite.to currPage.dom, DURATION, {"y": "#{currPage.originTop}px"}
 
 next = ->
+    stopCurrentPage()
     setPrevPage currPage
     setCurrentPage nextPage
     index = if currPage.index + 1 is pages.length then 0 else currPage.index + 1
     setNextPage pages[index]
     isMoving = no
     updateZindex()
+    startCurrentPage()
 
 prev = ->
+    stopCurrentPage()
     setNextPage currPage
     setCurrentPage prevPage
     index = if currPage.index - 1 is -1 then pages.length - 1 else currPage.index - 1
     setPrevPage pages[index]
     isMoving = no
     updateZindex()
+    startCurrentPage()
 
 updateZindex = ->
     MAX_Z_INDEX += 4
@@ -110,4 +114,10 @@ setNextPage = (page)->
     page.originTop = READY_TOP
     page.setPos page.originTop
 
+stopCurrentPage = ->
+    currPage.stop()
+
+startCurrentPage = ->
+    currPage.start()
+ 
 module.exports = {init}

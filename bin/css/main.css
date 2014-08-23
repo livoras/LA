@@ -13,9 +13,9 @@
 }
 .loading {
   z-index: 10000;
-  background-color: #fff;
 }
 .cover {
+  z-index: 9999;
   display: none;
 }
 .page1 {

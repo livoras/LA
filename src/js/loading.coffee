@@ -5,7 +5,7 @@ init = ->
 
 remove = ->
     $loading = $(".loading")
-    $loading.style.display = "none"
+    $loading.hide()
     log "Loading done, remove loading page."
 
 module.exports = {init, remove}

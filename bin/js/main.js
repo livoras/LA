@@ -574,289 +574,140 @@
 }();
 
 },{}],2:[function(require,module,exports){
-var $, init, log, remove, _ref;
-
-_ref = require("./util.coffee"), $ = _ref.$, log = _ref.log;
-
-init = function() {
-  return log("Init Loading..");
-};
-
-remove = function() {
-  var $loading;
-  $loading = $(".loading");
-  $loading.style.display = "none";
-  return log("Loading done, remove loading page.");
-};
-
-module.exports = {
-  init: init,
-  remove: remove
-};
-
-
-
-},{"./util.coffee":6}],3:[function(require,module,exports){
-var $, loading, log, slideEffect, util;
-
-util = require("./util.coffee");
-
-$ = util.$, log = util.log;
-
-loading = require("./loading.coffee");
-
-slideEffect = require("./slide-effect.coffee");
-
-loading.init();
-
-window.addEventListener("load", function(event) {
-  slideEffect.init();
-  return loading.remove();
-});
-
-
-
-},{"./loading.coffee":2,"./slide-effect.coffee":5,"./util.coffee":6}],4:[function(require,module,exports){
-var EventEmitter2, PageController, log,
+var $, Core, EventEmitter2, log, _ref,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
+_ref = require("../util.coffee"), $ = _ref.$, log = _ref.log;
+
 EventEmitter2 = (require("eventemitter2")).EventEmitter2;
 
-log = require("./util.coffee").log;
+Core = (function(_super) {
+  __extends(Core, _super);
 
-PageController = (function(_super) {
-  __extends(PageController, _super);
-
-  function PageController(dom) {
-    this.dom = dom;
-    this.render();
+  function Core() {
+    this.cid = 0;
+    this.slide = null;
+    this.loading = null;
+    this.cover = null;
+    this.pages = [];
+    this._dismissLoadingAfterLoaded();
   }
 
-  PageController.prototype.render = function() {
-    this.dom.innerHTML += " rendered.";
-    return this.emit("render");
+  Core.prototype.setLoading = function(loading) {
+    var $loading;
+    this.loading = loading;
+    $loading = $("section.loading");
+    $loading.html(loading.$dom);
+    return $loading.show();
   };
 
-  PageController.prototype.start = function() {
-    log("start");
-    return this.emit("start");
+  Core.prototype.setCover = function(cover) {
+    var $cover;
+    this.cover = cover;
+    $cover = $("section.cover");
+    $cover.html(cover.$dom);
+    $cover.show();
+    return this.cover.on("done", (function(_this) {
+      return function() {
+        $cover.hide();
+        if (_this.slide) {
+          return _this.slide.enable();
+        }
+      };
+    })(this));
   };
 
-  PageController.prototype.stop = function() {
-    log("stop");
-    return this.emit("stop");
+  Core.prototype.setSlide = function(slide) {
+    this.slide = slide;
+    slide.init(this.pages);
+    slide.on("active", (function(_this) {
+      return function(page) {
+        page.start();
+        return _this.emit("active page", page);
+      };
+    })(this));
+    return slide.on("deactive", (function(_this) {
+      return function(page) {
+        page.stop();
+        return _this.emit("deactive page", page);
+      };
+    })(this));
   };
 
-  PageController.prototype.setPos = function(top) {
-    return this.dom.style.top = "" + top + "px";
+  Core.prototype.addPage = function(page, pos) {
+    var cid;
+    cid = page.id = this._getCid();
+    if (pos) {
+      this.pages.splice(pos, 0, page);
+      this._addPageDom(page.$dom, cid, pos);
+    } else {
+      this.pages.push(page);
+      this._addPageDom(page.$dom, cid);
+    }
+    return cid;
   };
 
-  return PageController;
+  Core.prototype.removePage = function(cid) {
+    return $("#content-" + cid).remove();
+  };
+
+  Core.prototype._addPageDom = function($dom, cid, pos) {
+    var $container, $newPage, $pages;
+    $newPage = $("<section class='page content'></section>");
+    $newPage.html($dom);
+    $container = $("div.pages");
+    $pages = $("section.content");
+    $newPage.attr("id", "content-" + cid);
+    return $container[0].insertBefore($newPage[0], $pages[pos]);
+  };
+
+  Core.prototype._dismissLoadingAfterLoaded = function() {
+    return $(window).on("load", (function(_this) {
+      return function() {
+        if (!_this.loading) {
+          if (_this.cover) {
+            _this.cover.start();
+          }
+          return;
+        }
+        return _this.loading.dismiss(function() {
+          $("section.loading").hide();
+          if (_this.cover) {
+            return _this.cover.start();
+          }
+        });
+      };
+    })(this));
+  };
+
+  Core.prototype._getCid = function() {
+    return this.cid++;
+  };
+
+  return Core;
 
 })(EventEmitter2);
 
-module.exports = PageController;
+module.exports = new Core;
 
 
 
-},{"./util.coffee":6,"eventemitter2":1}],5:[function(require,module,exports){
-var $, CONTENT_HEIGHT, CONTENT_WIDTH, DURATION, MAX_Z_INDEX, PageController, READY_TOP, currPage, currPoint, each, init, initPages, isMoving, isReachedEnd, listenEvent, log, next, nextPage, pages, prev, prevPage, setCurrentPage, setNextPage, setPrevPage, startPoint, swipeDown, swipeUp, swiping, updateZindex, _ref;
+},{"../util.coffee":4,"eventemitter2":1}],3:[function(require,module,exports){
+var $, assert, log, test, util;
 
-_ref = require("./util.coffee"), $ = _ref.$, log = _ref.log, each = _ref.each;
+util = require("./util.coffee");
 
-PageController = require("./page-controller.coffee");
+$ = util.$, log = util.log, assert = util.assert;
 
-CONTENT_HEIGHT = window.innerHeight;
+test = require("../../test/test.coffee");
 
-CONTENT_WIDTH = window.innerWidth;
-
-prevPage = null;
-
-nextPage = null;
-
-currPage = null;
-
-startPoint = null;
-
-currPoint = null;
-
-MAX_Z_INDEX = 1000;
-
-pages = [];
-
-isMoving = false;
-
-isReachedEnd = false;
-
-DURATION = 0.5;
-
-READY_TOP = CONTENT_HEIGHT + 20;
-
-init = function() {
-  initPages();
-  return listenEvent();
-};
-
-initPages = function() {
-  var $contents;
-  $contents = $(".content");
-  $contents.forEach(function($content, i) {
-    var page;
-    page = new PageController($content);
-    page.index = i;
-    page.dom.style.zIndex = MAX_Z_INDEX - i;
-    return pages.push(page);
-  });
-  setCurrentPage(pages[0]);
-  setNextPage(pages[1]);
-  return updateZindex();
-};
-
-listenEvent = function() {
-  var $body;
-  $body = $$(document.body);
-  $body.swiping(swiping);
-  $body.swipeUp(swipeUp);
-  $body.swipeDown(swipeDown);
-  return $body.on("touchstart", function(event) {
-    return startPoint = event.touches[0].clientY;
-  });
-};
-
-swiping = function(event) {
-  var GAP, dist;
-  if (isMoving) {
-    return;
-  }
-  currPoint = event.currentTouch.y;
-  GAP = 30;
-  dist = currPoint - startPoint;
-  if (Math.abs(dist) < GAP) {
-    return;
-  }
-  if (dist < 0) {
-    return nextPage.setPos(nextPage.originTop + dist);
-  } else if (prevPage) {
-    if (currPage.index === 0 && !isReachedEnd) {
-      return;
-    }
-    return currPage.setPos(currPage.originTop + dist);
-  }
-};
-
-swipeUp = function(event) {
-  if (isMoving) {
-    return;
-  }
-  if (Math.abs(currPoint - startPoint) > CONTENT_HEIGHT * 0.4) {
-    isMoving = true;
-    return TweenLite.to(nextPage.dom, DURATION, {
-      "top": "0px",
-      onComplete: next
-    });
-  } else {
-    return TweenLite.to(nextPage.dom, DURATION, {
-      "top": nextPage.originTop
-    });
-  }
-};
-
-swipeDown = function() {
-  if (isMoving || !prevPage) {
-    return;
-  }
-  if (currPage.index === 0 && !isReachedEnd) {
-    return;
-  }
-  if (Math.abs(currPoint - startPoint) > CONTENT_HEIGHT * 0.4) {
-    isMoving = true;
-    return TweenLite.to(currPage.dom, DURATION, {
-      "top": "" + READY_TOP + "px",
-      onComplete: prev
-    });
-  } else {
-    return TweenLite.to(currPage.dom, DURATION, {
-      "top": currPage.originTop
-    });
-  }
-};
-
-next = function() {
-  var index;
-  setPrevPage(currPage);
-  setCurrentPage(nextPage);
-  index = currPage.index + 1 === pages.length ? 0 : currPage.index + 1;
-  setNextPage(pages[index]);
-  isMoving = false;
-  return updateZindex();
-};
-
-prev = function() {
-  var index;
-  setNextPage(currPage);
-  setCurrentPage(prevPage);
-  index = currPage.index - 1 === -1 ? pages.length - 1 : currPage.index - 1;
-  setPrevPage(pages[index]);
-  isMoving = false;
-  return updateZindex();
-};
-
-updateZindex = function() {
-  MAX_Z_INDEX += 4;
-  if (nextPage) {
-    nextPage.dom.style.zIndex = MAX_Z_INDEX;
-  }
-  if (currPage) {
-    currPage.dom.style.zIndex = MAX_Z_INDEX - 1;
-  }
-  if (prevPage) {
-    return prevPage.dom.style.zIndex = MAX_Z_INDEX - 2;
-  }
-};
-
-setPrevPage = function(page) {
-  prevPage = page;
-  page.originTop = 0;
-  return page.setPos(0);
-};
-
-setCurrentPage = function(page) {
-  currPage = page;
-  page.originTop = 0;
-  page.setPos(0);
-  if (page.index === pages.length - 1) {
-    return isReachedEnd = true;
-  }
-};
-
-setNextPage = function(page) {
-  nextPage = page;
-  page.originTop = READY_TOP;
-  return page.setPos(page.originTop);
-};
-
-module.exports = {
-  init: init
-};
+test.run();
 
 
 
-},{"./page-controller.coffee":4,"./util.coffee":6}],6:[function(require,module,exports){
-var $, each, log;
-
-$ = function(selector) {
-  var dom, doms;
-  doms = document.querySelectorAll(selector);
-  if (doms.length === 1) {
-    dom = doms[0];
-    dom.on = function() {
-      return dom.addEventListener.apply(dom, arguments);
-    };
-    return doms[0];
-  }
-  return [].slice.call(doms, 0);
-};
+},{"../../test/test.coffee":5,"./util.coffee":4}],4:[function(require,module,exports){
+var $, assert, each, log;
 
 log = function() {
   return console.log.apply(console, arguments);
@@ -866,12 +717,147 @@ each = function(list, callback) {
   return [].forEach.call(list, callback);
 };
 
+assert = function(msg, statement) {
+  if (arguments.length === 1) {
+    msg = ">>> Anonymous Test";
+    statement = msg;
+  }
+  msg = "TEST: " + msg;
+  if (statement) {
+    return console.log("%c" + msg + " passed", "color: green;");
+  } else {
+    return console.log("%c" + msg + " failed", "color: red;");
+  }
+};
+
+$ = window.$ = $$;
+
 module.exports = {
   $: $,
   log: log,
-  each: each
+  each: each,
+  assert: assert
 };
 
 
 
-},{}]},{},[3]);
+},{}],5:[function(require,module,exports){
+var $, Cover, EventEmitter2, Loading, Page, assert, colors, core, log, processDom, run, util,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+EventEmitter2 = (require("eventemitter2")).EventEmitter2;
+
+core = require("../src/js/lib/core.coffee");
+
+util = require("../src/js/util.coffee");
+
+$ = util.$, log = util.log, assert = util.assert;
+
+Page = (function(_super) {
+  __extends(Page, _super);
+
+  function Page(id) {
+    this.$dom = $("<div>FUCK" + id + "</div>");
+    processDom(this.$dom);
+  }
+
+  Page.prototype.start = function() {
+    return log("start");
+  };
+
+  Page.prototype.stop = function() {
+    return log("stop");
+  };
+
+  return Page;
+
+})(EventEmitter2);
+
+Loading = (function(_super) {
+  __extends(Loading, _super);
+
+  function Loading() {
+    this.$dom = $("<div>My Loading</div>");
+    processDom(this.$dom);
+  }
+
+  Loading.prototype.dismiss = function(callback) {
+    return TweenLite.to(this.$dom, 0.5, {
+      "opacity": 0,
+      onComplete: callback
+    });
+  };
+
+  return Loading;
+
+})(EventEmitter2);
+
+Cover = (function(_super) {
+  __extends(Cover, _super);
+
+  function Cover() {
+    this.$dom = $("<div><div>Fucking Cover..</div></div>");
+    processDom(this.$dom);
+  }
+
+  Cover.prototype.start = function() {
+    var tl;
+    tl = new TimelineMax;
+    tl.to(this.$dom.find('div'), 1, {
+      "y": 200
+    });
+    tl.to(this.$dom.find('div'), 0.5, {
+      "x": 50
+    });
+    return this.$dom.on("tap", (function(_this) {
+      return function() {
+        return TweenLite.to(_this.$dom, 1, {
+          "opacity": 0,
+          onComplete: function() {
+            return _this.emit("done");
+          }
+        });
+      };
+    })(this));
+  };
+
+  return Cover;
+
+})(EventEmitter2);
+
+colors = ["#319574", "#b54322", "#484d79", "#c59820"];
+
+processDom = function($dom) {
+  $dom.css("width", "100%");
+  $dom.css("height", "100%");
+  $dom.css("backgroundColor", colors[Math.floor(Math.random() * colors.length)]);
+  $dom.css("color", "#ccc");
+  return $dom.css("padding", "10px");
+};
+
+run = function() {
+  var cover, fakePage, i, loading, _i;
+  cover = new Cover;
+  core.setCover(cover);
+  loading = new Loading;
+  core.setLoading(loading);
+  for (i = _i = 1; _i <= 10; i = ++_i) {
+    fakePage = new Page(i);
+    core.addPage(fakePage);
+  }
+  assert("There should be 10 doms", $("section.content").length === 10);
+  fakePage = new Page('page 1');
+  core.addPage(fakePage, 2);
+  assert("There should be 11 doms", $("section.content").length === 11);
+  assert("Dom should exit", $("#content-10").length === 1);
+  core.removePage(fakePage.id);
+  assert("There should be 10 doms", $("section.content").length === 10);
+  return assert("Dom should not exit", $("#content-10").length === 0);
+};
+
+exports.run = run;
+
+
+
+},{"../src/js/lib/core.coffee":2,"../src/js/util.coffee":4,"eventemitter2":1}]},{},[3]);

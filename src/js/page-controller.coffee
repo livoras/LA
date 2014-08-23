@@ -10,15 +10,14 @@ class PageController extends EventEmitter2
         @emit "render"
 
     start: ->
-        log "start"
+        log "start", @index
         @emit "start"
 
     stop: ->
-        log "stop"
+        log "stop", @index
         @emit "stop"
 
     setPos: (top)->
-        @dom.style.top = "#{top}px"
-
+        TweenLite.set @dom, {"y": "#{top}px"}
 
 module.exports = PageController

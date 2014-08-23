@@ -1,16 +1,19 @@
-$ = (selector)-> 
-    doms = document.querySelectorAll selector
-    if doms.length is 1 
-        dom = doms[0]
-        dom.on = ->
-            dom.addEventListener.apply dom, arguments
-        return doms[0]
-    [].slice.call doms, 0
-
 log = ->
     console.log.apply console, arguments
 
 each = (list, callback)->
     [].forEach.call list, callback
 
-module.exports = {$, log, each}
+assert = (msg, statement)->
+    if arguments.length is 1
+        msg = ">>> Anonymous Test"
+        statement = msg
+    msg = "TEST: #{msg}"
+    if statement
+        console.log "%c#{msg} passed", "color: green;"
+    else 
+        console.log "%c#{msg} failed", "color: red;"
+
+$ = window.$ = $$
+
+module.exports = {$, log, each, assert}

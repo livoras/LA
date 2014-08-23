@@ -1,4 +1,4 @@
-{$, log} = require "../util.coffee"
+{$, log} = require "./util.coffee"
 EventEmitter2 = (require "eventemitter2").EventEmitter2
 
 class Core extends EventEmitter2
@@ -27,25 +27,29 @@ class Core extends EventEmitter2
 
     setSlide: (slide)->
         @slide = slide
-        slide.init @pages
         slide.on "active", (page)=>
             page.start()
             @emit "active page", page
         slide.on "deactive", (page)=>
             page.stop()
             @emit "deactive page", page
+        slide.init @pages
 
     addPage: (page, pos)->
         cid = page.id = @_getCid()
         if pos
             @pages.splice pos, 0, page
-            @_addPageDom page.$dom, cid, pos
+            page.$container = @_addPageDom page.$dom, cid, pos
         else
             @pages.push page
-            @_addPageDom page.$dom, cid
+            page.$container = @_addPageDom page.$dom, cid
         cid
 
     removePage: (cid)->
+        for page, i in @pages
+            if page.id is cid
+                @pages.splice i, 1
+                break
         $("#content-#{cid}").remove()
 
     _addPageDom: ($dom, cid, pos)-> 
@@ -55,6 +59,7 @@ class Core extends EventEmitter2
         $pages = $ "section.content"
         $newPage.attr "id", "content-#{cid}"
         $container[0].insertBefore $newPage[0], $pages[pos]
+        $newPage
 
     _dismissLoadingAfterLoaded: ->
         $(window).on "load", =>

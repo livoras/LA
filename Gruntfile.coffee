@@ -62,12 +62,12 @@ module.exports = (grunt)->
     uglify:
       build:
         files:
-          'dist/build.min.js': ['bin/**/*.js']
+          'dist/LA.min.js': ['bin/js/main.js']
 
     cssmin:    
       build:
         files:
-          'dist/style.min.css': ['bin/main.css']
+          'dist/LA.min.css': ['bin/css/main.css']
 
   grunt.loadNpmTasks 'grunt-contrib-connect'
   grunt.loadNpmTasks 'grunt-contrib-clean'

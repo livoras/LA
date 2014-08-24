@@ -100,11 +100,15 @@ module.exports = SlideController;
 
 
 },{"../util.coffee":6}],4:[function(require,module,exports){
-var $, Core, log, _ref,
+var $, Core, log, wrapper, _ref,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 _ref = require("./util.coffee"), $ = _ref.$, log = _ref.log;
+
+wrapper = require("../tpl/wrapper.html");
+
+$("body").prepend($(wrapper));
 
 Core = (function(_super) {
   __extends(Core, _super);
@@ -171,6 +175,7 @@ Core = (function(_super) {
       this.pages.push(page);
       page.$container = this._addPageDom(page.$dom, cid);
     }
+    this.emit("add page", page, pos);
     return cid;
   };
 
@@ -181,6 +186,7 @@ Core = (function(_super) {
       page = _ref1[i];
       if (page.id === cid) {
         this.pages.splice(i, 1);
+        this.emit("remove page", page, i);
         break;
       }
     }
@@ -242,7 +248,7 @@ module.exports = new Core;
 
 
 
-},{"./util.coffee":6}],5:[function(require,module,exports){
+},{"../tpl/wrapper.html":7,"./util.coffee":6}],5:[function(require,module,exports){
 var LA, LoadingController, PageController, SlideController, core, util;
 
 core = require("./core.coffee");
@@ -285,5 +291,8 @@ module.exports = {
 };
 
 
+
+},{}],7:[function(require,module,exports){
+module.exports = "<div class=\"wrapper\">\r\n    <section class=\"page loading\"></section>\r\n    <section class=\"page cover\"></section>\r\n    <div class=\"pages\"></div>\r\n</div>\r\n";
 
 },{}]},{},[5]);

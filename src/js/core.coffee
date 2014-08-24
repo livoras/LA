@@ -1,4 +1,7 @@
 {$, log} = require "./util.coffee"
+wrapper = require "../tpl/wrapper.html"
+
+$("body").prepend $(wrapper)
 
 class Core extends EventEmitter2
     constructor: ->

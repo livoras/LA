@@ -7,5 +7,8 @@ class PageController extends EventEmitter2
     constructor: -> @$dom = null
     start: -> toBeImplemented()
     stop: -> toBeImplemented()
+    render: ->  
+        @compileFunc = template.compile(@tpl)
+        @$dom = $(@compileFunc @data)
 
 module.exports = PageController

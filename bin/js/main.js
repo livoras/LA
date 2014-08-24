@@ -16,6 +16,11 @@ LoadingController = (function(_super) {
     return toBeImplemented();
   };
 
+  LoadingController.prototype.render = function() {
+    this.compileFunc = template.compile(this.tpl);
+    return this.$dom = $(this.compileFunc(this.data));
+  };
+
   return LoadingController;
 
 })(EventEmitter2);
@@ -44,6 +49,11 @@ PageController = (function(_super) {
 
   PageController.prototype.stop = function() {
     return toBeImplemented();
+  };
+
+  PageController.prototype.render = function() {
+    this.compileFunc = template.compile(this.tpl);
+    return this.$dom = $(this.compileFunc(this.data));
   };
 
   return PageController;

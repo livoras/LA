@@ -1,40 +1,106 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var $, Cover, Loading, Page, Slide, colors, core, log, previous, processDom, run, _ref,
+var Cover, tpl,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-Slide = require("./slide/slide-effect.coffee");
+tpl = require("./cover.html");
+
+Cover = (function(_super) {
+  __extends(Cover, _super);
+
+  function Cover() {
+    this.tpl = tpl;
+    this.data = {
+      "title": "Fucking, Cover..."
+    };
+    this.render();
+  }
+
+  Cover.prototype.start = function() {
+    var tl;
+    tl = new TimelineMax;
+    tl.to(this.$dom.find('div'), 1, {
+      "y": 200
+    });
+    tl.to(this.$dom.find('div'), 0.5, {
+      "x": 50
+    });
+    return this.$dom.on("tap", (function(_this) {
+      return function() {
+        return TweenLite.to(_this.$dom, 1, {
+          "opacity": 0,
+          "onComplete": function() {
+            return _this.emit("done");
+          }
+        });
+      };
+    })(this));
+  };
+
+  return Cover;
+
+})(LA.PageController);
+
+module.exports = Cover;
+
+
+
+},{"./cover.html":2}],2:[function(require,module,exports){
+module.exports = "<div class=\"inner-content inner-cover\">\r\n    <div class=\"padding\">\r\n        {{title}}\r\n    </div> \r\n</div>";
+
+},{}],3:[function(require,module,exports){
+var $, Cover, EndPage, IntroducePage, Loading, Slide, TextPage, core, log, run, _ref;
+
+Slide = require("./slide/slide.coffee");
+
+Loading = require("./loading/loading.coffee");
+
+Cover = require("./cover/cover.coffee");
+
+IntroducePage = require("./pages/introduce/introduce.coffee");
+
+TextPage = require("./pages/text/text.coffee");
+
+EndPage = require("./pages/end/end.coffee");
 
 _ref = LA.util, $ = _ref.$, log = _ref.log;
 
 core = LA.core;
 
-Page = (function(_super) {
-  __extends(Page, _super);
+run = function() {
+  var cover, loading, slide;
+  loading = new Loading;
+  core.setLoading(loading);
+  cover = new Cover;
+  core.setCover(cover);
+  core.addPage(new IntroducePage);
+  core.addPage(new TextPage);
+  core.addPage(new EndPage);
+  slide = new Slide;
+  core.setSlide(slide);
+  return slide.enable();
+};
 
-  function Page(id) {
-    this.$dom = $("<div><div>FUCK" + id + "</div></div>");
-    processDom(this.$dom);
-  }
+run();
 
-  Page.prototype.start = function() {
-    return log("start", this.id);
-  };
 
-  Page.prototype.stop = function() {
-    return log("stop", this.id);
-  };
 
-  return Page;
+},{"./cover/cover.coffee":1,"./loading/loading.coffee":4,"./pages/end/end.coffee":6,"./pages/introduce/introduce.coffee":8,"./pages/text/text.coffee":10,"./slide/slide.coffee":12}],4:[function(require,module,exports){
+var Loading, tpl,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-})(LA.PageController);
+tpl = require("./loading.html");
 
 Loading = (function(_super) {
   __extends(Loading, _super);
 
   function Loading() {
-    this.$dom = $("<div><div>My Loading...</div></div>");
-    processDom(this.$dom);
+    this.tpl = tpl;
+    this.data = {
+      "text": "Loading..."
+    };
+    this.render();
   }
 
   Loading.prototype.dismiss = function(callback) {
@@ -52,79 +118,166 @@ Loading = (function(_super) {
 
 })(LA.LoadingController);
 
-Cover = (function(_super) {
-  __extends(Cover, _super);
+module.exports = Loading;
 
-  function Cover() {
-    this.$dom = $("<div><div>Fucking Cover..</div></div>");
-    processDom(this.$dom);
+
+
+},{"./loading.html":5}],5:[function(require,module,exports){
+module.exports = "<div class=\"inner-content loading\">\r\n    <div class=\"padding\">{{text}}</div>\r\n</div>";
+
+},{}],6:[function(require,module,exports){
+var endPage, tpl,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+tpl = require("./end.html");
+
+endPage = (function(_super) {
+  __extends(endPage, _super);
+
+  function endPage() {
+    this.tpl = tpl;
+    this.data = {};
+    this.render();
+    this.$padding = this.$dom.find("div.padding");
+    this._reset();
   }
 
-  Cover.prototype.start = function() {
-    var tl;
-    tl = new TimelineMax;
-    tl.to(this.$dom.find('div'), 1, {
-      "y": 200
+  endPage.prototype.start = function() {
+    return TweenMax.to(this.$padding, 1, {
+      x: 0,
+      autoAlpha: 1,
+      ease: Elastic.easeInOut
     });
-    tl.to(this.$dom.find('div'), 0.5, {
-      "x": 50
-    });
-    return this.$dom.on("tap", (function(_this) {
-      return function() {
-        return TweenLite.to(_this.$dom, 1, {
-          "opacity": 0,
-          onComplete: function() {
-            return _this.emit("done");
-          }
-        });
-      };
-    })(this));
   };
 
-  return Cover;
+  endPage.prototype.stop = function() {
+    return this._reset();
+  };
+
+  endPage.prototype._reset = function() {
+    return TweenMax.set(this.$padding, {
+      x: 100,
+      autoAlpha: 0
+    });
+  };
+
+  return endPage;
 
 })(LA.PageController);
 
-colors = ["#319574", "#b54322", "#484d79", "#c59820"];
+module.exports = endPage;
 
-previous = 0;
 
-processDom = function($dom) {
-  var now;
-  now = Math.floor(Math.random() * colors.length);
-  while (now === previous) {
-    now = Math.floor(Math.random() * colors.length);
+
+},{"./end.html":7}],7:[function(require,module,exports){
+module.exports = "<div class=\"inner-content end\">\r\n    <div class=\"padding vertical\">\r\n        Our Happy Ending.\r\n    </div>\r\n</div>";
+
+},{}],8:[function(require,module,exports){
+var IntroducePage, tpl,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+tpl = require("./introduce.html");
+
+IntroducePage = (function(_super) {
+  __extends(IntroducePage, _super);
+
+  function IntroducePage() {
+    this.tpl = tpl;
+    this.data = {};
+    this.tl = new TimelineMax;
+    this.render();
+    this.$padding = this.$dom.find("div.padding");
+    this.tl.to(this.$padding, 0.5, {
+      "x": 0,
+      "autoAlpha": 0.5
+    });
+    this.tl.to(this.$padding, 0.5, {
+      "y": -20,
+      "autoAlpha": 1
+    });
+    this.stop();
   }
-  previous = now;
-  $dom.css("width", "100%");
-  $dom.css("height", "100%");
-  $dom.css("backgroundColor", colors[now]);
-  $dom.css("color", "#ccc");
-  return $dom.find("div").css("padding", "10px");
-};
 
-run = function() {
-  var cover, fakePage, i, loading, slide, _i;
-  loading = new Loading;
-  core.setLoading(loading);
-  cover = new Cover;
-  core.setCover(cover);
-  for (i = _i = 1; _i <= 4; i = ++_i) {
-    fakePage = new Page(i);
-    core.addPage(fakePage);
+  IntroducePage.prototype.start = function() {
+    return this.tl.restart();
+  };
+
+  IntroducePage.prototype.stop = function() {
+    this.tl.kill();
+    return this._reset();
+  };
+
+  IntroducePage.prototype._reset = function() {
+    return TweenMax.set(this.$padding, {
+      "x": -300,
+      "autoAlpha": 0
+    });
+  };
+
+  return IntroducePage;
+
+})(LA.PageController);
+
+module.exports = IntroducePage;
+
+
+
+},{"./introduce.html":9}],9:[function(require,module,exports){
+module.exports = "<div class=\"inner-content introduce\">\r\n    <div class=\"padding vertical\">\r\n        This is something I don't want to talk about.\r\n    </div>\r\n</div>";
+
+},{}],10:[function(require,module,exports){
+var textPage, tpl,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+tpl = require("./text.html");
+
+textPage = (function(_super) {
+  __extends(textPage, _super);
+
+  function textPage() {
+    this.tpl = tpl;
+    this.data = {};
+    this.render();
+    this.$padding = this.$dom.find("div.padding");
+    this._reset();
   }
-  fakePage = new Page('page 1');
-  core.addPage(fakePage, 2);
-  core.removePage(fakePage.id);
-  slide = new Slide;
-  return core.setSlide(slide);
-};
 
-run();
+  textPage.prototype.start = function() {
+    return TweenMax.staggerTo(this.$padding, 1.5, {
+      rotation: 0,
+      scale: 1,
+      autoAlpha: 1,
+      ease: Elastic.easeInOut
+    });
+  };
+
+  textPage.prototype.stop = function() {
+    return this._reset();
+  };
+
+  textPage.prototype._reset = function() {
+    return TweenMax.set(this.$padding, {
+      rotation: -180,
+      scale: 0,
+      autoAlpha: 0
+    });
+  };
+
+  return textPage;
+
+})(LA.PageController);
+
+module.exports = textPage;
 
 
 
-},{"./slide/slide-effect.coffee":2}],2:[function(require,module,exports){
+},{"./text.html":11}],11:[function(require,module,exports){
+module.exports = "<div class=\"inner-content text\">\r\n    <div class=\"padding vertical\">\r\n        Ultra high-performance, professional-grade animation for the modern web\r\n    </div>\r\n</div>";
+
+},{}],12:[function(require,module,exports){
 var $, $window, CONTENT_HEIGHT, CONTENT_WIDTH, DURATION, MAX_Z_INDEX, Slide, currentIndex, dist, endY, log, nextIndex, prevIndex, startY, _ref,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -251,11 +404,11 @@ Slide = (function(_super) {
   Slide.prototype._switchUp = function() {
     var check, count;
     this.isSwitching = true;
-    this.emit("deactive", this.currPage);
     count = 0;
     check = (function(_this) {
       return function() {
         if (++count === 2) {
+          _this.emit("deactive", _this.currPage);
           _this._next();
           return _this.isSwitching = false;
         }
@@ -274,11 +427,11 @@ Slide = (function(_super) {
   Slide.prototype._switchDown = function() {
     var check, count;
     this.isSwitching = true;
-    this.emit("deactive", this.currPage);
     count = 0;
     check = (function(_this) {
       return function() {
         if (++count === 2) {
+          _this.emit("deactive", _this.currPage);
           _this._prev();
           return _this.isSwitching = false;
         }
@@ -401,4 +554,4 @@ module.exports = Slide;
 
 
 
-},{}]},{},[1]);
+},{}]},{},[3]);

@@ -40,13 +40,23 @@ module.exports = (grunt)->
       compile:
         options:
           livereload: true
-        files: ['test/**/*.coffee', 'src/**/*.coffee', 'src/**/*.less', 'src/**/*.html', 'index.html']
+        files: [
+          'test/**/*.coffee', 
+          'src/**/*.coffee', 
+          'src/**/*.less', 
+          'src/**/*.html', 
+          'example/**/*.coffee', 
+          'example/**/*.less', 
+          'example/**/*.html', 
+          'index.html'
+        ]
         tasks: ['browserify', 'less']
 
     less:    
       dev:
         files:
           'bin/css/main.css': ['src/css/main.less']
+          'bin/css/example.css': ['example/**/*.less']
 
 
     uglify:

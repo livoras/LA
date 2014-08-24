@@ -6,5 +6,8 @@
 class LoadingController extends EventEmitter2
     constructor: -> @$dom = null
     dismiss: (callback)-> toBeImplemented()
+    render: ->  
+        @compileFunc = template.compile(@tpl)
+        @$dom = $(@compileFunc @data)
 
 module.exports = LoadingController

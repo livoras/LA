@@ -69,10 +69,10 @@ class Slide extends LA.SlideController
 
     _switchUp: ->
         @isSwitching = yes
-        @emit "deactive", @currPage
         count = 0
         check = => 
             if ++count is 2
+                @emit "deactive", @currPage
                 @_next()
                 @isSwitching = no
         TweenMax.to @currPage.$container, DURATION, {"y": -CONTENT_HEIGHT, onComplete: check}
@@ -80,10 +80,10 @@ class Slide extends LA.SlideController
 
     _switchDown: ->
         @isSwitching = yes
-        @emit "deactive", @currPage
         count = 0
         check = => 
             if ++count is 2
+                @emit "deactive", @currPage
                 @_prev()
                 @isSwitching = no
         TweenMax.to @currPage.$container, DURATION, {"y": CONTENT_HEIGHT, onComplete: check}

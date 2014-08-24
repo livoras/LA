@@ -25,6 +25,16 @@ module.exports = (grunt)->
         src: ['src/js/main.coffee']
         dest: 'bin/js'
         ext: '.js'
+      test: 
+        options:
+          preBundleCB: (b)->
+            b.transform(coffeeify)
+            b.transform(stringify({extensions: ['.hbs', '.html', '.tpl', '.txt']}))
+        expand: true
+        flatten: true
+        src: ['example/example.coffee']
+        dest: 'bin/js'
+        ext: '.js'
 
     watch:
       compile:

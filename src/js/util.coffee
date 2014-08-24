@@ -1,9 +1,9 @@
 log = ->
     console.log.apply console, arguments
 
-each = (list, callback)->
-    [].forEach.call list, callback
+toBeImplemented = ->
+    throw "ERROR: Should Be Implemented!"
 
 $ = window.$ = $$
 
-module.exports = {$, log, each}
+module.exports = {$, log, toBeImplemented}

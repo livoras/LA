@@ -1,18 +1,15 @@
-EventEmitter2 = (require "eventemitter2").EventEmitter2
-core = require "../src/js/core.coffee"
-util = require "../src/js/util.coffee"
-assert = require "./assert.coffee"
-Slide = require "./slide-effect.coffee"
-{$, log} = util
+Slide = require "./slide/slide-effect.coffee"
+{$, log} = LA.util
+core = LA.core
 
-class Page extends EventEmitter2
+class Page extends LA.PageController
     constructor: (id)->
         @$dom = $("<div><div>FUCK#{id}</div></div>")
         processDom @$dom
-    start: -> log "start"
-    stop: -> log "stop"
+    start: -> log "start", @id
+    stop: -> log "stop", @id
 
-class Loading extends EventEmitter2
+class Loading extends LA.LoadingController
     constructor: ->
         @$dom = $("<div><div>My Loading...</div></div>")
         processDom @$dom
@@ -22,7 +19,7 @@ class Loading extends EventEmitter2
             TweenLite.to @$dom, 0.5, {"opacity": 0, onComplete: callback}
         , 1000
 
-class Cover extends EventEmitter2
+class Cover extends LA.PageController
     constructor: ->
         @$dom = $("<div><div>Fucking Cover..</div></div>")
         processDom @$dom
@@ -47,13 +44,13 @@ processDom = ($dom)->
     $dom.find("div").css "padding", "10px"
 
 run = ->
-    # test setting cover
-    cover = new Cover
-    core.setCover cover
-
     # test setting loading
     loading = new Loading
     core.setLoading loading
+
+    # test setting cover
+    cover = new Cover
+    core.setCover cover
 
     # test adding page
     for i in [1..4]
@@ -71,4 +68,4 @@ run = ->
     slide = new Slide
     core.setSlide slide
 
-exports.run = run
+run()

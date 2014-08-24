@@ -1,5 +1,4 @@
-EventEmitter2 = (require "eventemitter2").EventEmitter2
-{$, log} = require "../src/js/util.coffee"
+{$, log} = LA.util
 MAX_Z_INDEX = 1000
 CONTENT_HEIGHT = window.innerHeight
 CONTENT_WIDTH = window.innerWidth
@@ -14,7 +13,7 @@ currentIndex = 0
 prevIndex = 0
 nextIndex = 0
 
-class Slide extends EventEmitter2
+class Slide extends LA.SlideController
     constructor: ->
         @curr = null
         @prev = null
@@ -22,6 +21,7 @@ class Slide extends EventEmitter2
         @able = no
         @isSwitching = no
         @isReachEnd = no
+        @isFirstSetCurr = yes
 
     init: (pages)->
         @pages = pages
@@ -45,7 +45,8 @@ class Slide extends EventEmitter2
         $window.on "touchmove", (event)=>
             endY = event.touches[0].clientY
             dist = endY - startY
-            if currentIndex is 0 and not @isReachEnd then return
+            if currentIndex is 0
+                if dist > 0 and not @isReachEnd then return
             if @able and not @isSwitching then @_slide()
         $window.on "touchend", =>
             if @able
@@ -97,7 +98,12 @@ class Slide extends EventEmitter2
         if not page then return
         @currPage = page
         TweenMax.set page.$container, {"y": 0}
-        @emit "active", page
+        active = => @emit "active", page
+        if @isFirstSetCurr
+            @isFirstSetCurr = no
+            LA.core.on "cover done", active
+            return
+        active()
 
     _setPrev: (page)->    
         if not page then return

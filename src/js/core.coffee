@@ -1,5 +1,4 @@
 {$, log} = require "./util.coffee"
-EventEmitter2 = (require "eventemitter2").EventEmitter2
 
 class Core extends EventEmitter2
     constructor: ->
@@ -23,6 +22,7 @@ class Core extends EventEmitter2
         $cover.show()
         @cover.on "done", => 
             $cover.hide()
+            @emit "cover done"
             if @slide then @slide.enable()
 
     setSlide: (slide)->
@@ -37,6 +37,7 @@ class Core extends EventEmitter2
 
     addPage: (page, pos)->
         cid = page.id = @_getCid()
+        @_listenLock page
         if pos
             @pages.splice pos, 0, page
             page.$container = @_addPageDom page.$dom, cid, pos
@@ -72,5 +73,13 @@ class Core extends EventEmitter2
                 
     _getCid: ->
         @cid++
+
+    _listenLock: (page)->    
+        # Page may want some certain actions be done and 
+        # does't want user to slide the page during actions.
+        # For some cases, here provides some events
+        # to the page to lock the slide.
+        page.on "lock", => @slide.disable()
+        page.on "unlock", => @slide.enable()
 
 module.exports = new Core

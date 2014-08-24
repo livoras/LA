@@ -44,12 +44,14 @@ class Core extends EventEmitter2
         else
             @pages.push page
             page.$container = @_addPageDom page.$dom, cid
+        @emit "add page", page, pos
         cid
 
     removePage: (cid)->
         for page, i in @pages
             if page.id is cid
                 @pages.splice i, 1
+                @emit "remove page", page, i
                 break
         $("#content-#{cid}").remove()
 

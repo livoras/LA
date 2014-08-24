@@ -4,7 +4,7 @@
 {toBeImplemented} = require "../util.coffee"
 
 class PageController extends EventEmitter2
-    constructor: -> @$dom = null
+    constructor: (@data)-> @$dom = null
     start: -> toBeImplemented()
     stop: -> toBeImplemented()
     render: ->  

@@ -39,7 +39,8 @@ toBeImplemented = require("../util.coffee").toBeImplemented;
 PageController = (function(_super) {
   __extends(PageController, _super);
 
-  function PageController() {
+  function PageController(data) {
+    this.data = data;
     this.$dom = null;
   }
 

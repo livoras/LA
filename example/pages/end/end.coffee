@@ -1,9 +1,9 @@
 tpl = require "./end.html"
 
 class endPage extends LA.PageController
-    constructor: ->
+    constructor: (data)->
         @tpl = tpl
-        @data = {}
+        @data = data or {}
         @render()
         @$padding = @$dom.find "div.padding"
         @_reset()

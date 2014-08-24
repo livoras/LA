@@ -19,15 +19,12 @@ run = ->
     core.setCover cover
 
     # test adding page
-    core.addPage new IntroducePage
-    core.addPage new TextPage
-    core.addPage new EndPage
+    core.addPage new IntroducePage {name: "Harry"}
+    core.addPage new TextPage {name: "Lucy"}
+    core.addPage new EndPage {name: "Tony"}
     
     # test setting slide
     slide = new Slide
     core.setSlide slide
     
-    slide.enable()
-
-
 run()

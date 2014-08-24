@@ -1,9 +1,9 @@
 tpl = require "./introduce.html"
 
 class IntroducePage extends LA.PageController
-    constructor: ->
+    constructor: (data)->
         @tpl = tpl
-        @data = {}
+        @data = data or {}
         @tl = new TimelineMax
         @render()
         @$padding = @$dom.find "div.padding"

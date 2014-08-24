@@ -73,12 +73,17 @@ run = function() {
   core.setLoading(loading);
   cover = new Cover;
   core.setCover(cover);
-  core.addPage(new IntroducePage);
-  core.addPage(new TextPage);
-  core.addPage(new EndPage);
+  core.addPage(new IntroducePage({
+    name: "Harry"
+  }));
+  core.addPage(new TextPage({
+    name: "Lucy"
+  }));
+  core.addPage(new EndPage({
+    name: "Tony"
+  }));
   slide = new Slide;
-  core.setSlide(slide);
-  return slide.enable();
+  return core.setSlide(slide);
 };
 
 run();
@@ -135,9 +140,9 @@ tpl = require("./end.html");
 endPage = (function(_super) {
   __extends(endPage, _super);
 
-  function endPage() {
+  function endPage(data) {
     this.tpl = tpl;
-    this.data = {};
+    this.data = data || {};
     this.render();
     this.$padding = this.$dom.find("div.padding");
     this._reset();
@@ -171,7 +176,7 @@ module.exports = endPage;
 
 
 },{"./end.html":7}],7:[function(require,module,exports){
-module.exports = "<div class=\"inner-content end\">\r\n    <div class=\"padding vertical\">\r\n        Our Happy Ending.\r\n    </div>\r\n</div>";
+module.exports = "<div class=\"inner-content end\">\r\n    <div class=\"padding vertical\">\r\n        Our Happy Ending.{{name}}\r\n    </div>\r\n</div>";
 
 },{}],8:[function(require,module,exports){
 var IntroducePage, tpl,
@@ -183,9 +188,9 @@ tpl = require("./introduce.html");
 IntroducePage = (function(_super) {
   __extends(IntroducePage, _super);
 
-  function IntroducePage() {
+  function IntroducePage(data) {
     this.tpl = tpl;
-    this.data = {};
+    this.data = data || {};
     this.tl = new TimelineMax;
     this.render();
     this.$padding = this.$dom.find("div.padding");
@@ -225,7 +230,7 @@ module.exports = IntroducePage;
 
 
 },{"./introduce.html":9}],9:[function(require,module,exports){
-module.exports = "<div class=\"inner-content introduce\">\r\n    <div class=\"padding vertical\">\r\n        This is something I don't want to talk about.\r\n    </div>\r\n</div>";
+module.exports = "<div class=\"inner-content introduce\">\r\n    <div class=\"padding vertical\">\r\n        This is something I don't want to talk about.{{name}}\r\n    </div>\r\n</div>";
 
 },{}],10:[function(require,module,exports){
 var textPage, tpl,
@@ -237,9 +242,9 @@ tpl = require("./text.html");
 textPage = (function(_super) {
   __extends(textPage, _super);
 
-  function textPage() {
+  function textPage(data) {
     this.tpl = tpl;
-    this.data = {};
+    this.data = data || {};
     this.render();
     this.$padding = this.$dom.find("div.padding");
     this._reset();
@@ -275,7 +280,7 @@ module.exports = textPage;
 
 
 },{"./text.html":11}],11:[function(require,module,exports){
-module.exports = "<div class=\"inner-content text\">\r\n    <div class=\"padding vertical\">\r\n        Ultra high-performance, professional-grade animation for the modern web\r\n    </div>\r\n</div>";
+module.exports = "<div class=\"inner-content text\">\r\n    <div class=\"padding vertical\">\r\n        Ultra high-performance, professional-grade animation for the modern web.{{name}}\r\n    </div>\r\n</div>";
 
 },{}],12:[function(require,module,exports){
 var $, $window, CONTENT_HEIGHT, CONTENT_WIDTH, DURATION, MAX_Z_INDEX, Slide, currentIndex, dist, endY, log, nextIndex, prevIndex, startY, _ref,

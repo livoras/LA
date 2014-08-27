@@ -2,7 +2,7 @@
 MAX_Z_INDEX = 1000
 CONTENT_HEIGHT = window.innerHeight
 CONTENT_WIDTH = window.innerWidth
-$window = $ window
+$window = $ document.body
 
 startY = 0
 endY = 0
@@ -22,6 +22,7 @@ class Slide extends LA.SlideController
         @isSwitching = no
         @isReachEnd = no
         @isFirstSetCurr = yes
+        @startSlide = no
 
     init: (pages)->
         @pages = pages
@@ -41,23 +42,27 @@ class Slide extends LA.SlideController
 
     _initEvents: ->
         $window.on "touchstart", (event)=>
-            startY = event.touches[0].clientY
+            @startSlide = yes
+            startY = event.clientY or event.touches[0].clientY
         $window.on "touchmove", (event)=>
-            endY = event.touches[0].clientY
+            if not @startSlide then return
+            endY = event.clientY or event.touches[0].clientY
             dist = endY - startY
             if currentIndex is 0
                 if dist > 0 and not @isReachEnd then return
             if @able and not @isSwitching then @_slide()
         $window.on "touchend", =>
-            if @able
-                if @_isReadyToSwitch()
-                    if dist < 0
-                        @_switchUp()
-                    else
-                        if currentIndex is 0 and not @isReachEnd then return
-                        @_switchDown()
+            if not @able then return
+            if @_isReadyToSwitch()
+                if dist < 0
+                    @_switchUp()
                 else
-                    @_back()
+                    if currentIndex is 0 and not @isReachEnd then return
+                    @_switchDown()
+            else
+                @_back()
+            @startSlide = no
+
     _slide: ->        
         if dist < 0
             TweenMax.set @currPage.$container, {"y": dist}

@@ -295,7 +295,7 @@ CONTENT_HEIGHT = window.innerHeight;
 
 CONTENT_WIDTH = window.innerWidth;
 
-$window = $(window);
+$window = $(document.body);
 
 startY = 0;
 
@@ -322,6 +322,7 @@ Slide = (function(_super) {
     this.isSwitching = false;
     this.isReachEnd = false;
     this.isFirstSetCurr = true;
+    this.startSlide = false;
   }
 
   Slide.prototype.init = function(pages) {
@@ -347,12 +348,16 @@ Slide = (function(_super) {
   Slide.prototype._initEvents = function() {
     $window.on("touchstart", (function(_this) {
       return function(event) {
-        return startY = event.touches[0].clientY;
+        _this.startSlide = true;
+        return startY = event.clientY || event.touches[0].clientY;
       };
     })(this));
     $window.on("touchmove", (function(_this) {
       return function(event) {
-        endY = event.touches[0].clientY;
+        if (!_this.startSlide) {
+          return;
+        }
+        endY = event.clientY || event.touches[0].clientY;
         dist = endY - startY;
         if (currentIndex === 0) {
           if (dist > 0 && !_this.isReachEnd) {
@@ -366,20 +371,22 @@ Slide = (function(_super) {
     })(this));
     return $window.on("touchend", (function(_this) {
       return function() {
-        if (_this.able) {
-          if (_this._isReadyToSwitch()) {
-            if (dist < 0) {
-              return _this._switchUp();
-            } else {
-              if (currentIndex === 0 && !_this.isReachEnd) {
-                return;
-              }
-              return _this._switchDown();
-            }
-          } else {
-            return _this._back();
-          }
+        if (!_this.able) {
+          return;
         }
+        if (_this._isReadyToSwitch()) {
+          if (dist < 0) {
+            _this._switchUp();
+          } else {
+            if (currentIndex === 0 && !_this.isReachEnd) {
+              return;
+            }
+            _this._switchDown();
+          }
+        } else {
+          _this._back();
+        }
+        return _this.startSlide = false;
       };
     })(this));
   };

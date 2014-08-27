@@ -15,4 +15,5 @@ class Cover extends LA.PageController
                 "onComplete": => @emit "done"
             }
 
+LA.util.exports Cover
 module.exports = Cover

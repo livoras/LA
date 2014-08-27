@@ -1,6 +1,6 @@
 tpl = require "./text.html"
 
-class textPage extends LA.PageController
+class TextPage extends LA.PageController
     constructor: (data)->
         @tpl = tpl
         @data = data or {}
@@ -17,4 +17,5 @@ class textPage extends LA.PageController
     _reset: ->
         TweenMax.set @$padding, {rotation: -180, scale:0, autoAlpha:0}
 
-module.exports = textPage 
+LA.util.exports TextPage
+module.exports = TextPage 

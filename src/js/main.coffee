@@ -4,7 +4,9 @@ SlideController = require "./controllers/slide-controller.coffee"
 LoadingController = require "./controllers/loading-controller.coffee"
 util = require "./util.coffee"
 
+modules = {}
+
 LA = window.LA = {
-    core, PageController, util
+    core, PageController, util, modules
     SlideController, LoadingController
 }

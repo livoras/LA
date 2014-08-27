@@ -23,4 +23,5 @@ class IntroducePage extends LA.PageController
     _reset: ->
         TweenMax.set @$padding, {"x": -300, "autoAlpha": 0}
 
+LA.util.exports IntroducePage
 module.exports = IntroducePage

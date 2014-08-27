@@ -1,6 +1,6 @@
 tpl = require "./end.html"
 
-class endPage extends LA.PageController
+class EndPage extends LA.PageController
     constructor: (data)->
         @tpl = tpl
         @data = data or {}
@@ -16,5 +16,6 @@ class endPage extends LA.PageController
 
     _reset: ->    
         TweenMax.set @$padding, {x: 100, autoAlpha: 0}
-
-module.exports = endPage
+        
+LA.util.exports EndPage
+module.exports = EndPage

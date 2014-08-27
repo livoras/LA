@@ -146,4 +146,5 @@ class Slide extends LA.SlideController
         if @currPage then @currPage.$container.css "zIndex", MAX_Z_INDEX - 1
         if @nextPage then @nextPage.$container.css "zIndex", MAX_Z_INDEX
 
+LA.util.exports Slide
 module.exports = Slide

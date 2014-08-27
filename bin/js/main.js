@@ -52,9 +52,16 @@ PageController = (function(_super) {
     return toBeImplemented();
   };
 
+  PageController.prototype.setBackground = function(url) {
+    return this.$dom.css("backgroundImage", "url(" + url + ")");
+  };
+
   PageController.prototype.render = function() {
     this.compileFunc = template.compile(this.tpl);
-    return this.$dom = $(this.compileFunc(this.data));
+    this.$dom = $(this.compileFunc(this.data));
+    if (this.data.bg) {
+      return this.setBackground(this.data.bg);
+    }
   };
 
   return PageController;
@@ -249,7 +256,7 @@ module.exports = new Core;
 
 
 },{"../tpl/wrapper.html":7,"./util.coffee":6}],5:[function(require,module,exports){
-var LA, LoadingController, PageController, SlideController, core, util;
+var LA, LoadingController, PageController, SlideController, core, modules, util;
 
 core = require("./core.coffee");
 
@@ -261,10 +268,13 @@ LoadingController = require("./controllers/loading-controller.coffee");
 
 util = require("./util.coffee");
 
+modules = {};
+
 LA = window.LA = {
   core: core,
   PageController: PageController,
   util: util,
+  modules: modules,
   SlideController: SlideController,
   LoadingController: LoadingController
 };
@@ -272,7 +282,7 @@ LA = window.LA = {
 
 
 },{"./controllers/loading-controller.coffee":1,"./controllers/page-controller.coffee":2,"./controllers/slide-controller.coffee":3,"./core.coffee":4,"./util.coffee":6}],6:[function(require,module,exports){
-var $, log, toBeImplemented;
+var $, exports, getCurrentDataId, getCurrentScript, injectStyle, log, toBeImplemented;
 
 log = function() {
   return console.log.apply(console, arguments);
@@ -282,12 +292,40 @@ toBeImplemented = function() {
   throw "ERROR: Should Be Implemented!";
 };
 
+injectStyle = function(styleStr) {
+  var $style;
+  $style = $("<style></style>");
+  $style.html(styleStr);
+  return $(document.body).append($style);
+};
+
+getCurrentScript = function() {
+  var scripts;
+  scripts = document.getElementsByTagName('script');
+  return scripts[scripts.length - 1];
+};
+
+exports = function(module) {
+  var id;
+  id = getCurrentDataId();
+  return LA.modules[id] = module;
+};
+
+getCurrentDataId = function() {
+  var $script;
+  $script = $(getCurrentScript());
+  return $script.attr("data-id");
+};
+
 $ = window.$ = $$;
 
 module.exports = {
   $: $,
   log: log,
-  toBeImplemented: toBeImplemented
+  toBeImplemented: toBeImplemented,
+  injectStyle: injectStyle,
+  getCurrentScript: getCurrentScript,
+  exports: exports
 };
 
 

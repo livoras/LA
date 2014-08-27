@@ -12,4 +12,5 @@ class Loading extends LA.LoadingController
             TweenLite.to @$dom, 0.5, {"opacity": 0, onComplete: callback}
         , 1000
 
+LA.util.exports Loading
 module.exports = Loading

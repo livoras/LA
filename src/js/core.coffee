@@ -26,7 +26,7 @@ class Core extends EventEmitter2
         @cover.on "done", => 
             $cover.hide()
             @emit "cover done"
-            if @slide then @slide.enable()
+            @_enaleSlideForTheFirstTime()
 
     setSlide: (slide)->
         @slide = slide
@@ -68,13 +68,17 @@ class Core extends EventEmitter2
         $newPage
 
     _dismissLoadingAfterLoaded: ->
+        checkAndStart = =>
+            # Slide will be enabled after `cover done`(see: setCover).
+            # so here doesn't have to start it manually.
+            if @cover then @cover.start()
+            else @_enaleSlideForTheFirstTime()
         $(window).on "load", =>
-            if not @loading
-                if @cover then @cover.start()
-                return
-            @loading.dismiss => 
+            if not @loading then return checkAndStart()
+            @loading.on "dismissed", => 
                 $("section.loading").hide()
-                if @cover then @cover.start()
+                checkAndStart()
+            @loading.dismiss()
                 
     _getCid: ->
         @cid++
@@ -82,5 +86,10 @@ class Core extends EventEmitter2
     _listenLock: (page)->    
         page.on "lock", => @slide.disable()
         page.on "unlock", => @slide.enable()
+            
+    _enaleSlideForTheFirstTime: ->
+        @slide.enable()
+        currentPage = @pages[0]
+        if currentPage then currentPage.start()
 
 module.exports = new Core

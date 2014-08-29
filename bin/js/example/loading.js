@@ -16,15 +16,17 @@ Loading = (function(_super) {
     this.render();
   }
 
-  Loading.prototype.dismiss = function(callback) {
-    return setTimeout((function(_this) {
+  Loading.prototype.dismiss = function() {
+    var onComplete;
+    onComplete = (function(_this) {
       return function() {
-        return TweenLite.to(_this.$dom, 0.5, {
-          "opacity": 0,
-          onComplete: callback
-        });
+        return _this.emit("dismissed");
       };
-    })(this), 1000);
+    })(this);
+    return TweenLite.to(this.$dom, 0.5, {
+      "opacity": 0,
+      onComplete: onComplete
+    });
   };
 
   return Loading;

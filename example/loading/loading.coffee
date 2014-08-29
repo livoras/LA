@@ -6,11 +6,10 @@ class Loading extends LA.LoadingController
         @data = {"text": "Loading..."}
         @render()
         
-    dismiss: (callback)->
+    dismiss: ->
         # setTimeout to make fake loading effect
-        setTimeout =>
-            TweenLite.to @$dom, 0.5, {"opacity": 0, onComplete: callback}
-        , 1000
+        onComplete = => @emit "dismissed"
+        TweenLite.to @$dom, 0.5, {"opacity": 0, onComplete: onComplete}
 
 LA.util.exports Loading
 module.exports = Loading

@@ -4,7 +4,7 @@
     font-family: "微软雅黑";
 }
 
-.page {
+section.page {
     position: fixed;
     width: 100%;
     height: 100%;
@@ -14,11 +14,12 @@
 
 @top: 10000;
 
-.loading {
+section.loading {
     z-index: @top;
+    display: none;
 }
 
-.cover {
+section.cover {
     z-index: @top - 1;
     display: none;
 }

@@ -147,9 +147,7 @@ Core = (function(_super) {
       return function() {
         $cover.hide();
         _this.emit("cover done");
-        if (_this.slide) {
-          return _this.slide.enable();
-        }
+        return _this._enaleSlideForTheFirstTime();
       };
     })(this));
   };
@@ -212,20 +210,26 @@ Core = (function(_super) {
   };
 
   Core.prototype._dismissLoadingAfterLoaded = function() {
+    var checkAndStart;
+    checkAndStart = (function(_this) {
+      return function() {
+        if (_this.cover) {
+          return _this.cover.start();
+        } else {
+          return _this._enaleSlideForTheFirstTime();
+        }
+      };
+    })(this);
     return $(window).on("load", (function(_this) {
       return function() {
         if (!_this.loading) {
-          if (_this.cover) {
-            _this.cover.start();
-          }
-          return;
+          return checkAndStart();
         }
-        return _this.loading.dismiss(function() {
+        _this.loading.on("dismissed", function() {
           $("section.loading").hide();
-          if (_this.cover) {
-            return _this.cover.start();
-          }
+          return checkAndStart();
         });
+        return _this.loading.dismiss();
       };
     })(this));
   };
@@ -245,6 +249,15 @@ Core = (function(_super) {
         return _this.slide.enable();
       };
     })(this));
+  };
+
+  Core.prototype._enaleSlideForTheFirstTime = function() {
+    var currentPage;
+    this.slide.enable();
+    currentPage = this.pages[0];
+    if (currentPage) {
+      return currentPage.start();
+    }
   };
 
   return Core;

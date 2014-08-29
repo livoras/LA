@@ -27,5 +27,5 @@ run = ->
     
     slide = new LA.modules[data.slide.id] data.slide.data
     core.setSlide slide
-    
+
 run()

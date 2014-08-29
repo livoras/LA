@@ -6,7 +6,16 @@ util = require "./util.coffee"
 
 modules = {}
 
+# Configuration Data
+config = {}
+
+set = (key, value)->
+    config[key] = value
+
+get = (key)->
+    config[key]
+
 LA = window.LA = {
     core, PageController, util, modules
-    SlideController, LoadingController
+    SlideController, LoadingController, get, set
 }

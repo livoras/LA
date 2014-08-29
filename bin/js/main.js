@@ -256,7 +256,7 @@ module.exports = new Core;
 
 
 },{"../tpl/wrapper.html":7,"./util.coffee":6}],5:[function(require,module,exports){
-var LA, LoadingController, PageController, SlideController, core, modules, util;
+var LA, LoadingController, PageController, SlideController, config, core, get, modules, set, util;
 
 core = require("./core.coffee");
 
@@ -270,13 +270,25 @@ util = require("./util.coffee");
 
 modules = {};
 
+config = {};
+
+set = function(key, value) {
+  return config[key] = value;
+};
+
+get = function(key) {
+  return config[key];
+};
+
 LA = window.LA = {
   core: core,
   PageController: PageController,
   util: util,
   modules: modules,
   SlideController: SlideController,
-  LoadingController: LoadingController
+  LoadingController: LoadingController,
+  get: get,
+  set: set
 };
 
 

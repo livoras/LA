@@ -80,10 +80,6 @@ class Core extends EventEmitter2
         @cid++
 
     _listenLock: (page)->    
-        # Page may want some certain actions be done and 
-        # does't want user to slide the page during actions.
-        # For some cases, here provides some events
-        # to the page to lock the slide.
         page.on "lock", => @slide.disable()
         page.on "unlock", => @slide.enable()
 

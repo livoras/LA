@@ -10,8 +10,11 @@ injectStyle = (styleStr)->
     $(document.body).append $style
 
 getCurrentScript = ->    
-    scripts = document.getElementsByTagName 'script'
-    scripts[scripts.length - 1]
+    if document.currentScript
+        return document.currentScript
+    else
+        scripts = document.getElementsByTagName 'script'
+        return scripts[scripts.length - 1]
 
 exports = (module)->    
     id = getCurrentDataId()

@@ -301,8 +301,12 @@ injectStyle = function(styleStr) {
 
 getCurrentScript = function() {
   var scripts;
-  scripts = document.getElementsByTagName('script');
-  return scripts[scripts.length - 1];
+  if (document.currentScript) {
+    return document.currentScript;
+  } else {
+    scripts = document.getElementsByTagName('script');
+    return scripts[scripts.length - 1];
+  }
 };
 
 exports = function(module) {

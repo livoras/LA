@@ -20,7 +20,7 @@ pages = [
 run = ->
     TweenMax.set "body", {"backgroundColor": "#444"}
     loading = new Loading
-    core.setLoading loading
+    # core.setLoading loading
 
     cover = new Cover
     # core.setCover cover
@@ -30,7 +30,8 @@ run = ->
     
     slide = new Slide
     core.setSlide slide
-    core.startFirstPage()
+    loading.dismiss()
+    core.start()
 
 run()
 

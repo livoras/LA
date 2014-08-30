@@ -126,7 +126,7 @@ Core = (function(_super) {
     this.loading = null;
     this.cover = null;
     this.pages = [];
-    this._dismissLoadingAfterLoaded();
+    this._startCoverAfterLoaded();
   }
 
   Core.prototype.setLoading = function(loading) {
@@ -147,7 +147,7 @@ Core = (function(_super) {
       return function() {
         $cover.hide();
         _this.emit("cover done");
-        return _this._enaleSlideForTheFirstTime();
+        return _this.start();
       };
     })(this));
   };
@@ -198,8 +198,11 @@ Core = (function(_super) {
     return $("#content-" + cid).remove();
   };
 
-  Core.prototype.startFirstPage = function() {
+  Core.prototype.start = function() {
     var currentPage;
+    if (this.slide) {
+      this.slide.enable();
+    }
     currentPage = this.pages[0];
     if (currentPage) {
       return currentPage.start();
@@ -217,27 +220,12 @@ Core = (function(_super) {
     return $newPage;
   };
 
-  Core.prototype._dismissLoadingAfterLoaded = function() {
-    var checkAndStart;
-    checkAndStart = (function(_this) {
+  Core.prototype._startCoverAfterLoaded = function() {
+    return $(window).on("load", (function(_this) {
       return function() {
         if (_this.cover) {
           return _this.cover.start();
-        } else {
-          return _this._enaleSlideForTheFirstTime();
         }
-      };
-    })(this);
-    return $(window).on("load", (function(_this) {
-      return function() {
-        if (!_this.loading) {
-          return checkAndStart();
-        }
-        _this.loading.on("dismissed", function() {
-          $("section.loading").hide();
-          return checkAndStart();
-        });
-        return _this.loading.dismiss();
       };
     })(this));
   };
@@ -257,12 +245,6 @@ Core = (function(_super) {
         return _this.slide.enable();
       };
     })(this));
-  };
-
-  Core.prototype._enaleSlideForTheFirstTime = function() {
-    if (this.slide) {
-      return this.slide.enable();
-    }
   };
 
   return Core;

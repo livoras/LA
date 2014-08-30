@@ -116,11 +116,13 @@ class FancySlide extends LA.SlideController
             ptl.pause()
     _initEvents: ->
         gestureEvent.on "swiping up", (dist)=>
+            if not @able then return
             if not @next or not @nextTimeline then return
             if @_isTimelineActive() then return
             @nextTimeline.pause()
             @nextTimeline.progress dist / HEIGHT
         gestureEvent.on "swipe up", (dist, v)=>
+            if not @able then return
             if not @next or not @nextTimeline then return
             if @_isTimelineActive() then return
             @nextTimeline.resume()
@@ -131,11 +133,13 @@ class FancySlide extends LA.SlideController
                 @nextTimeline.reverse()
 
         gestureEvent.on "swiping down", (dist)=>
+            if not @able then return
             if not @prev or not @prevTimeline then return
             if @_isTimelineActive() then return
             @prevTimeline.pause()
             @prevTimeline.progress dist / HEIGHT
         gestureEvent.on "swipe down", (dist, v)=>
+            if not @able then return
             if not @prev or not @prevTimeline then return
             if @_isTimelineActive() then return
             @prevTimeline.resume()

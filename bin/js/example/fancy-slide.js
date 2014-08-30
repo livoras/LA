@@ -223,6 +223,9 @@ FancySlide = (function(_super) {
   FancySlide.prototype._initEvents = function() {
     gestureEvent.on("swiping up", (function(_this) {
       return function(dist) {
+        if (!_this.able) {
+          return;
+        }
         if (!_this.next || !_this.nextTimeline) {
           return;
         }
@@ -235,6 +238,9 @@ FancySlide = (function(_super) {
     })(this));
     gestureEvent.on("swipe up", (function(_this) {
       return function(dist, v) {
+        if (!_this.able) {
+          return;
+        }
         if (!_this.next || !_this.nextTimeline) {
           return;
         }
@@ -251,6 +257,9 @@ FancySlide = (function(_super) {
     })(this));
     gestureEvent.on("swiping down", (function(_this) {
       return function(dist) {
+        if (!_this.able) {
+          return;
+        }
         if (!_this.prev || !_this.prevTimeline) {
           return;
         }
@@ -263,6 +272,9 @@ FancySlide = (function(_super) {
     })(this));
     return gestureEvent.on("swipe down", (function(_this) {
       return function(dist, v) {
+        if (!_this.able) {
+          return;
+        }
         if (!_this.prev || !_this.prevTimeline) {
           return;
         }

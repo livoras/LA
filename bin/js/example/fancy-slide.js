@@ -11,7 +11,7 @@ HEIGHT = window.innerHeight;
 
 WIDTH = window.innerWidth;
 
-GAP = HEIGHT * 0.3;
+GAP = 0.33;
 
 FancySlide = (function(_super) {
   __extends(FancySlide, _super);
@@ -29,17 +29,18 @@ FancySlide = (function(_super) {
     this.isReachEnd = false;
     this.isFirstSetCurr = true;
     this.isProgressShow = true;
+    this.ease = Power2.easeInOut;
     this.prevState = {
       y: -HEIGHT,
-      ease: Linear.easeNone
+      ease: this.ease
     };
     this.currState = {
       y: 0,
-      ease: Linear.easeNone
+      ease: this.ease
     };
     this.nextState = {
       y: HEIGHT,
-      ease: Linear.easeNone
+      ease: this.ease
     };
     this.duration = 0.6;
   }
@@ -52,7 +53,16 @@ FancySlide = (function(_super) {
       this.currState = currState;
     }
     if (nextState) {
-      return this.nextState = nextState;
+      this.nextState = nextState;
+    }
+    if (!this.prevState.ease) {
+      this.prevState.ease = this.ease;
+    }
+    if (!this.currState.ease) {
+      this.currState.ease = this.ease;
+    }
+    if (!this.nextState.ease) {
+      return this.nextState.ease = this.ease;
     }
   };
 
@@ -225,6 +235,7 @@ FancySlide = (function(_super) {
     })(this));
     gestureEvent.on("swipe up", (function(_this) {
       return function(dist, v) {
+        var progress;
         if (!_this.next || !_this.nextTimeline) {
           return;
         }
@@ -232,7 +243,8 @@ FancySlide = (function(_super) {
           return;
         }
         _this.nextTimeline.resume();
-        if (dist > GAP || v > 1) {
+        progress = _this.nextTimeline.progress();
+        if (progress > GAP || v > 1) {
           return _this.nextTimeline.play();
         } else {
           return _this.nextTimeline.reverse();
@@ -253,6 +265,7 @@ FancySlide = (function(_super) {
     })(this));
     return gestureEvent.on("swipe down", (function(_this) {
       return function(dist, v) {
+        var progress;
         if (!_this.prev || !_this.prevTimeline) {
           return;
         }
@@ -260,7 +273,8 @@ FancySlide = (function(_super) {
           return;
         }
         _this.prevTimeline.resume();
-        if (dist > GAP || v > 1) {
+        progress = _this.prevTimeline.progress();
+        if (progress > GAP || v > 1) {
           return _this.prevTimeline.play();
         } else {
           return _this.prevTimeline.reverse();

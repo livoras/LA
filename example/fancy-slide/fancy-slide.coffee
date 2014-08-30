@@ -2,7 +2,7 @@ gestureEvent = require "./gesture-event.coffee"
 CURRENT_Z_INDEX = 100
 HEIGHT = window.innerHeight
 WIDTH = window.innerWidth
-GAP = HEIGHT * 0.3
+GAP = 0.33
 
 class FancySlide extends LA.SlideController
     constructor: ->
@@ -18,15 +18,18 @@ class FancySlide extends LA.SlideController
         @isReachEnd = no
         @isFirstSetCurr = yes
         @isProgressShow = yes
-
-        @prevState = {y: -HEIGHT, ease: Linear.easeNone}
-        @currState = {y: 0, ease: Linear.easeNone}
-        @nextState = {  y: HEIGHT, ease: Linear.easeNone}
+        @ease = Power2.easeInOut
+        @prevState = {y: -HEIGHT, ease: @ease}
+        @currState = {y: 0, ease: @ease}
+        @nextState = {  y: HEIGHT, ease: @ease}
         @duration = 0.6
     initStates: (prevState, currState, nextState)->
         if prevState then @prevState = prevState
         if currState then @currState = currState
         if nextState then @nextState = nextState
+        if not @prevState.ease then @prevState.ease = @ease
+        if not @currState.ease then @currState.ease = @ease
+        if not @nextState.ease then @nextState.ease = @ease
     init: (pages)->
         @pages = pages
         @pages.forEach (page, i)=>
@@ -121,7 +124,8 @@ class FancySlide extends LA.SlideController
             if not @next or not @nextTimeline then return
             if @_isTimelineActive() then return
             @nextTimeline.resume()
-            if dist > GAP or v > 1 
+            progress = @nextTimeline.progress()
+            if progress > GAP or v > 1 
                 @nextTimeline.play()
             else
                 @nextTimeline.reverse()
@@ -135,7 +139,8 @@ class FancySlide extends LA.SlideController
             if not @prev or not @prevTimeline then return
             if @_isTimelineActive() then return
             @prevTimeline.resume()
-            if dist > GAP or v > 1 
+            progress = @prevTimeline.progress()
+            if progress > GAP or v > 1 
                 @prevTimeline.play()
             else
                 @prevTimeline.reverse()

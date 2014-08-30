@@ -88,7 +88,7 @@ class Core extends EventEmitter2
         page.on "unlock", => @slide.enable()
             
     _enaleSlideForTheFirstTime: ->
-        @slide.enable()
+        if @slide then @slide.enable()
         currentPage = @pages[0]
         if currentPage then currentPage.start()
 

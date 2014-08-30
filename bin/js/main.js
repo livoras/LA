@@ -253,7 +253,9 @@ Core = (function(_super) {
 
   Core.prototype._enaleSlideForTheFirstTime = function() {
     var currentPage;
-    this.slide.enable();
+    if (this.slide) {
+      this.slide.enable();
+    }
     currentPage = this.pages[0];
     if (currentPage) {
       return currentPage.start();

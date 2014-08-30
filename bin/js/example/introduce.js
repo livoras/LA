@@ -52,6 +52,6 @@ module.exports = IntroducePage;
 
 
 },{"./introduce.html":2}],2:[function(require,module,exports){
-module.exports = "<div class=\"inner-content introduce\">\r\n    <div class=\"padding vertical\">\r\n        This is something I don't want to talk about.{{name}}\r\n    </div>\r\n</div>";
+module.exports = "<div class=\"inner-content introduce\">\r\n    <div class=\"padding vertical\">\r\n        {{title}}{{name}}\r\n    </div>\r\n</div>";
 
 },{}]},{},[1]);

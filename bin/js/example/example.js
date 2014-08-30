@@ -118,7 +118,7 @@ HEIGHT = window.innerHeight;
 
 WIDTH = window.innerWidth;
 
-GAP = 0.33;
+GAP = 0.33 * HEIGHT;
 
 FancySlide = (function(_super) {
   __extends(FancySlide, _super);
@@ -342,7 +342,6 @@ FancySlide = (function(_super) {
     })(this));
     gestureEvent.on("swipe up", (function(_this) {
       return function(dist, v) {
-        var progress;
         if (!_this.next || !_this.nextTimeline) {
           return;
         }
@@ -350,8 +349,7 @@ FancySlide = (function(_super) {
           return;
         }
         _this.nextTimeline.resume();
-        progress = _this.nextTimeline.progress();
-        if (progress > GAP || v > 1) {
+        if (dist > GAP || v > 1) {
           return _this.nextTimeline.play();
         } else {
           return _this.nextTimeline.reverse();
@@ -372,7 +370,6 @@ FancySlide = (function(_super) {
     })(this));
     return gestureEvent.on("swipe down", (function(_this) {
       return function(dist, v) {
-        var progress;
         if (!_this.prev || !_this.prevTimeline) {
           return;
         }
@@ -380,8 +377,7 @@ FancySlide = (function(_super) {
           return;
         }
         _this.prevTimeline.resume();
-        progress = _this.prevTimeline.progress();
-        if (progress > GAP || v > 1) {
+        if (dist > GAP || v > 1) {
           return _this.prevTimeline.play();
         } else {
           return _this.prevTimeline.reverse();

@@ -2,7 +2,7 @@ gestureEvent = require "./gesture-event.coffee"
 CURRENT_Z_INDEX = 100
 HEIGHT = window.innerHeight
 WIDTH = window.innerWidth
-GAP = 0.33
+GAP = 0.33 * HEIGHT
 
 class FancySlide extends LA.SlideController
     constructor: ->
@@ -124,8 +124,8 @@ class FancySlide extends LA.SlideController
             if not @next or not @nextTimeline then return
             if @_isTimelineActive() then return
             @nextTimeline.resume()
-            progress = @nextTimeline.progress()
-            if progress > GAP or v > 1 
+            # progress = @nextTimeline.progress()
+            if dist > GAP or v > 1 
                 @nextTimeline.play()
             else
                 @nextTimeline.reverse()
@@ -139,8 +139,8 @@ class FancySlide extends LA.SlideController
             if not @prev or not @prevTimeline then return
             if @_isTimelineActive() then return
             @prevTimeline.resume()
-            progress = @prevTimeline.progress()
-            if progress > GAP or v > 1 
+            # progress = @prevTimeline.progress()
+            if dist > GAP or v > 1 
                 @prevTimeline.play()
             else
                 @prevTimeline.reverse()

@@ -98,7 +98,8 @@ run = function() {
     core.addPage(new IntroducePage(pageData));
   }
   slide = new Slide;
-  return core.setSlide(slide);
+  core.setSlide(slide);
+  return core.startFirstPage();
 };
 
 run();

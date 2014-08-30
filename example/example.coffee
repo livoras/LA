@@ -30,6 +30,7 @@ run = ->
     
     slide = new Slide
     core.setSlide slide
+    core.startFirstPage()
 
 run()
 

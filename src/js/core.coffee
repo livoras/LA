@@ -58,6 +58,10 @@ class Core extends EventEmitter2
                 break
         $("#content-#{cid}").remove()
 
+    startFirstPage: ->
+        currentPage = @pages[0]
+        if currentPage then currentPage.start()
+
     _addPageDom: ($dom, cid, pos)-> 
         $newPage = $ "<section class='page content'></section>"
         $newPage.html $dom
@@ -89,7 +93,5 @@ class Core extends EventEmitter2
             
     _enaleSlideForTheFirstTime: ->
         if @slide then @slide.enable()
-        currentPage = @pages[0]
-        if currentPage then currentPage.start()
 
 module.exports = new Core

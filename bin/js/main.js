@@ -198,6 +198,14 @@ Core = (function(_super) {
     return $("#content-" + cid).remove();
   };
 
+  Core.prototype.startFirstPage = function() {
+    var currentPage;
+    currentPage = this.pages[0];
+    if (currentPage) {
+      return currentPage.start();
+    }
+  };
+
   Core.prototype._addPageDom = function($dom, cid, pos) {
     var $container, $newPage, $pages;
     $newPage = $("<section class='page content'></section>");
@@ -252,13 +260,8 @@ Core = (function(_super) {
   };
 
   Core.prototype._enaleSlideForTheFirstTime = function() {
-    var currentPage;
     if (this.slide) {
-      this.slide.enable();
-    }
-    currentPage = this.pages[0];
-    if (currentPage) {
-      return currentPage.start();
+      return this.slide.enable();
     }
   };
 

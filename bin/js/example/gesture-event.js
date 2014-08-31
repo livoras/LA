@@ -40,9 +40,9 @@ $window.on("touchend", function(event) {
   absDistY = Math.abs(distY);
   velocity = absDistY / distTime;
   if (distY < 0) {
-    return gestureEvent.emit("swipe up", absDistY, velocity);
+    return gestureEvent.emit("swipe up", absDistY, velocity, distTime);
   } else {
-    return gestureEvent.emit("swipe down", absDistY, velocity);
+    return gestureEvent.emit("swipe down", absDistY, velocity, distTime);
   }
 });
 

@@ -4,7 +4,7 @@ class IntroducePage extends LA.PageController
     constructor: (data)->
         @tpl = tpl
         @data = data or {}
-        @tl = new TimelineMax
+        @tl = new TimelineLite
         @render()
         @$padding = @$dom.find "div.padding"
 
@@ -21,7 +21,7 @@ class IntroducePage extends LA.PageController
         @_reset()
 
     _reset: ->
-        TweenMax.set @$padding, {"x": -300, "autoAlpha": 0}
+        TweenLite.set @$padding, {"x": -300, "autoAlpha": 0}
 
 LA.util.exports IntroducePage
 module.exports = IntroducePage

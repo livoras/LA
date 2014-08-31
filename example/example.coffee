@@ -17,8 +17,10 @@ pages = [
    {title: "FUCK YOU!!!!!!!!!", name: "Tony.", bg: "http://wx.nen.com.cn/imagelist/11/24/85715iy4e5h2.jpg" }
 ]
 
+HEIGHT = window.innerHeight
+
 run = ->
-    TweenMax.set "body", {"backgroundColor": "#444"}
+    TweenLite.set "body", {"backgroundColor": "#444"}
     loading = new Loading
     # core.setLoading loading
 
@@ -29,6 +31,10 @@ run = ->
         core.addPage (new IntroducePage pageData)
     
     slide = new Slide
+    # slide.initStates {y: 0, scale: 0.5, rotationZ: 90, autoAlpha: 0, transformOrigin:"50% 50%"},
+    #   {y: 0, scale: 1, autoAlpha: 1, rotationZ: 0, transformOrigin:"50% 50%"},
+    #   {y: HEIGHT, scale: 1, autoAlpha: 0, rotationZ: 0,transformOrigin:"50% 50%"}
+    # slide.setDuration 1
     core.setSlide slide
     loading.dismiss()
     core.start()

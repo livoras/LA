@@ -2,7 +2,7 @@ gestureEvent = require "./gesture-event.coffee"
 CURRENT_Z_INDEX = 100
 HEIGHT = window.innerHeight
 WIDTH = window.innerWidth
-GAP = 0.33 * HEIGHT
+GAP = 0.3 * HEIGHT
 
 class FancySlide extends LA.SlideController
     constructor: ->
@@ -18,11 +18,12 @@ class FancySlide extends LA.SlideController
         @isReachEnd = no
         @isFirstSetCurr = yes
         @isProgressShow = yes
-        @ease = Power2.easeInOut
+        @ease = Linear.easeNone
         @prevState = {y: -HEIGHT, ease: @ease}
         @currState = {y: 0, ease: @ease}
-        @nextState = {  y: HEIGHT, ease: @ease}
-        @duration = 0.6
+        @nextState = {y: HEIGHT, ease: @ease}
+        @duration = 1
+        @isAnimating = no
     initStates: (prevState, currState, nextState)->
         if prevState then @prevState = prevState
         if currState then @currState = currState
@@ -68,7 +69,7 @@ class FancySlide extends LA.SlideController
         $container = page.$container
         $container.show()
         $container.css "zIndex", CURRENT_Z_INDEX
-        TweenMax.set $container, @currState
+        TweenLite.set $container, @currState
         if @isProgressShow then @_activeProgressByIndex page.pageIndex
         if page.pageIndex is @pages.length - 1 then @isReachEnd = yes
         if @isFirstSetCurr then return @isFirstSetCurr = no
@@ -79,7 +80,7 @@ class FancySlide extends LA.SlideController
         $container = page.$container
         $container.show()
         $container.css "zIndex", CURRENT_Z_INDEX + 1
-        TweenMax.set $container[0], @nextState
+        TweenLite.set $container[0], @nextState
         @emit "deactive", page
     _setPrev: (page)->
         @prev = page
@@ -87,7 +88,7 @@ class FancySlide extends LA.SlideController
         $container = page.$container
         $container.show()
         $container.css "zIndex", CURRENT_Z_INDEX - 1
-        TweenMax.set $container, @prevState
+        TweenLite.set $container, @prevState
         @emit "deactive", page
     _getPrevByIndex: (index)->
         prevIndex = index - 1
@@ -103,51 +104,46 @@ class FancySlide extends LA.SlideController
             return if @isLoop then @pages[0] else null
     _remakeTimelines: ->
         if @next
-            ntl = @nextTimeline = new TimelineMax
+            ntl = @nextTimeline = new TimelineLite
             ntl.to @curr.$container, @duration, @prevState, "next"
                .to @next.$container, @duration, @currState, "next"
-               .call => @_makePageCurrent @next
-            ntl.pause()
+            ntl.stop()
         if @prev
-            ptl = @prevTimeline = new TimelineMax
+            ptl = @prevTimeline = new TimelineLite
             ptl.to @curr.$container, @duration, @nextState, "prev"
                .to @prev.$container, @duration, @currState, "prev"
-               .call => @_makePageCurrent @prev
-            ptl.pause()
+            ptl.stop()
     _initEvents: ->
-        gestureEvent.on "swiping up", (dist)=>
-            if not @able then return
-            if not @next or not @nextTimeline then return
+        swiping = (timeline, page, dist)=>
+            if not page or not timeline then return
+            if not @able or @isAnimating then return
             if @_isTimelineActive() then return
-            @nextTimeline.pause()
-            @nextTimeline.progress dist / HEIGHT
-        gestureEvent.on "swipe up", (dist, v)=>
-            if not @able then return
-            if not @next or not @nextTimeline then return
+            timeline.progress dist / HEIGHT
+        swiped = (timeline, page, dist, v, distTime)=>
+            if not page or not timeline then return
+            if not @able or @isAnimating then return
             if @_isTimelineActive() then return
-            @nextTimeline.resume()
-            # progress = @nextTimeline.progress()
-            if dist > GAP or v > 1 
-                @nextTimeline.play()
+            isRun = no
+            currentProgress = dist / HEIGHT
+            if dist > GAP or v > 1
+                isRun = yes
+                duration = (1 - currentProgress) * @duration
+                @_enableAnimation duration
+                timeline.progress 100
             else
-                @nextTimeline.reverse()
+                duration = 0.5
+                @_enableAnimation duration
+                timeline.progress 0
+            setTimeout =>
+                @_disableAnimation()
+                if isRun then @_makePageCurrent page
+            , duration * 1.1 * 1000
 
-        gestureEvent.on "swiping down", (dist)=>
-            if not @able then return
-            if not @prev or not @prevTimeline then return
-            if @_isTimelineActive() then return
-            @prevTimeline.pause()
-            @prevTimeline.progress dist / HEIGHT
-        gestureEvent.on "swipe down", (dist, v)=>
-            if not @able then return
-            if not @prev or not @prevTimeline then return
-            if @_isTimelineActive() then return
-            @prevTimeline.resume()
-            # progress = @prevTimeline.progress()
-            if dist > GAP or v > 1 
-                @prevTimeline.play()
-            else
-                @prevTimeline.reverse()
+        gestureEvent.on "swiping up", (dist)=> swiping(@nextTimeline, @next, dist)
+        gestureEvent.on "swipe up", (dist, v, distTime)=> swiped(@nextTimeline, @next, dist, v, distTime)
+        gestureEvent.on "swiping down", (dist)=> swiping(@prevTimeline, @prev, dist)
+        gestureEvent.on "swipe down", (dist, v, distTime)=> swiped(@prevTimeline, @prev, dist, v, distTime)
+
     _activeProgressByIndex: (index)->            
         $("#slide-progress li.active").removeClass "active"
         $("#progress-#{index}").addClass "active"
@@ -155,6 +151,19 @@ class FancySlide extends LA.SlideController
     _isTimelineActive: ()->
         if @nextTimeline and @nextTimeline.isActive() then return yes
         if @prevTimeline and @prevTimeline.isActive() then return yes
+
+    _enableAnimation: (duration)->    
+        @isAnimating = yes
+        css = "all #{duration}s ease-out"
+        if @curr then @curr.$container[0].style.webkitTransition = css
+        if @prev then @prev.$container[0].style.webkitTransition = css
+        if @next then @next.$container[0].style.webkitTransition = css
+
+    _disableAnimation: ->    
+        @isAnimating = no
+        if @curr then @curr.$container[0].style.webkitTransition = ""
+        if @prev then @prev.$container[0].style.webkitTransition = ""
+        if @next then @next.$container[0].style.webkitTransition = ""
 
 LA.util.exports FancySlide
 module.exports = FancySlide

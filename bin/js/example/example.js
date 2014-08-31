@@ -51,7 +51,7 @@ module.exports = Cover;
 module.exports = "<div class=\"inner-content inner-cover\">\r\n    <div class=\"padding\">\r\n        {{title}}\r\n    </div> \r\n</div>";
 
 },{}],3:[function(require,module,exports){
-var $, Cover, IntroducePage, Loading, Slide, core, log, pages, run, _ref;
+var $, Cover, HEIGHT, IntroducePage, Loading, Slide, core, log, pages, run, _ref;
 
 _ref = LA.util, $ = _ref.$, log = _ref.log;
 
@@ -85,9 +85,11 @@ pages = [
   }
 ];
 
+HEIGHT = window.innerHeight;
+
 run = function() {
   var cover, loading, pageData, slide, _i, _len;
-  TweenMax.set("body", {
+  TweenLite.set("body", {
     "backgroundColor": "#444"
   });
   loading = new Loading;
@@ -119,7 +121,7 @@ HEIGHT = window.innerHeight;
 
 WIDTH = window.innerWidth;
 
-GAP = 0.33 * HEIGHT;
+GAP = 0.3 * HEIGHT;
 
 FancySlide = (function(_super) {
   __extends(FancySlide, _super);
@@ -137,7 +139,7 @@ FancySlide = (function(_super) {
     this.isReachEnd = false;
     this.isFirstSetCurr = true;
     this.isProgressShow = true;
-    this.ease = Power2.easeInOut;
+    this.ease = Linear.easeNone;
     this.prevState = {
       y: -HEIGHT,
       ease: this.ease
@@ -150,7 +152,8 @@ FancySlide = (function(_super) {
       y: HEIGHT,
       ease: this.ease
     };
-    this.duration = 0.6;
+    this.duration = 1;
+    this.isAnimating = false;
   }
 
   FancySlide.prototype.initStates = function(prevState, currState, nextState) {
@@ -239,7 +242,7 @@ FancySlide = (function(_super) {
     $container = page.$container;
     $container.show();
     $container.css("zIndex", CURRENT_Z_INDEX);
-    TweenMax.set($container, this.currState);
+    TweenLite.set($container, this.currState);
     if (this.isProgressShow) {
       this._activeProgressByIndex(page.pageIndex);
     }
@@ -261,7 +264,7 @@ FancySlide = (function(_super) {
     $container = page.$container;
     $container.show();
     $container.css("zIndex", CURRENT_Z_INDEX + 1);
-    TweenMax.set($container[0], this.nextState);
+    TweenLite.set($container[0], this.nextState);
     return this.emit("deactive", page);
   };
 
@@ -274,7 +277,7 @@ FancySlide = (function(_super) {
     $container = page.$container;
     $container.show();
     $container.css("zIndex", CURRENT_Z_INDEX - 1);
-    TweenMax.set($container, this.prevState);
+    TweenLite.set($container, this.prevState);
     return this.emit("deactive", page);
   };
 
@@ -309,92 +312,83 @@ FancySlide = (function(_super) {
   FancySlide.prototype._remakeTimelines = function() {
     var ntl, ptl;
     if (this.next) {
-      ntl = this.nextTimeline = new TimelineMax;
-      ntl.to(this.curr.$container, this.duration, this.prevState, "next").to(this.next.$container, this.duration, this.currState, "next").call((function(_this) {
-        return function() {
-          return _this._makePageCurrent(_this.next);
-        };
-      })(this));
-      ntl.pause();
+      ntl = this.nextTimeline = new TimelineLite;
+      ntl.to(this.curr.$container, this.duration, this.prevState, "next").to(this.next.$container, this.duration, this.currState, "next");
+      ntl.stop();
     }
     if (this.prev) {
-      ptl = this.prevTimeline = new TimelineMax;
-      ptl.to(this.curr.$container, this.duration, this.nextState, "prev").to(this.prev.$container, this.duration, this.currState, "prev").call((function(_this) {
-        return function() {
-          return _this._makePageCurrent(_this.prev);
-        };
-      })(this));
-      return ptl.pause();
+      ptl = this.prevTimeline = new TimelineLite;
+      ptl.to(this.curr.$container, this.duration, this.nextState, "prev").to(this.prev.$container, this.duration, this.currState, "prev");
+      return ptl.stop();
     }
   };
 
   FancySlide.prototype._initEvents = function() {
-    gestureEvent.on("swiping up", (function(_this) {
-      return function(dist) {
-        if (!_this.able) {
+    var swiped, swiping;
+    swiping = (function(_this) {
+      return function(timeline, page, dist) {
+        if (!page || !timeline) {
           return;
         }
-        if (!_this.next || !_this.nextTimeline) {
+        if (!_this.able || _this.isAnimating) {
           return;
         }
         if (_this._isTimelineActive()) {
           return;
         }
-        _this.nextTimeline.pause();
-        return _this.nextTimeline.progress(dist / HEIGHT);
+        return timeline.progress(dist / HEIGHT);
+      };
+    })(this);
+    swiped = (function(_this) {
+      return function(timeline, page, dist, v, distTime) {
+        var currentProgress, duration, isRun;
+        if (!page || !timeline) {
+          return;
+        }
+        if (!_this.able || _this.isAnimating) {
+          return;
+        }
+        if (_this._isTimelineActive()) {
+          return;
+        }
+        isRun = false;
+        currentProgress = dist / HEIGHT;
+        if (dist > GAP || v > 1) {
+          isRun = true;
+          duration = (1 - currentProgress) * _this.duration;
+          _this._enableAnimation(duration);
+          timeline.progress(100);
+        } else {
+          duration = 0.5;
+          _this._enableAnimation(duration);
+          timeline.progress(0);
+        }
+        return setTimeout(function() {
+          _this._disableAnimation();
+          if (isRun) {
+            return _this._makePageCurrent(page);
+          }
+        }, duration * 1.1 * 1000);
+      };
+    })(this);
+    gestureEvent.on("swiping up", (function(_this) {
+      return function(dist) {
+        return swiping(_this.nextTimeline, _this.next, dist);
       };
     })(this));
     gestureEvent.on("swipe up", (function(_this) {
-      return function(dist, v) {
-        if (!_this.able) {
-          return;
-        }
-        if (!_this.next || !_this.nextTimeline) {
-          return;
-        }
-        if (_this._isTimelineActive()) {
-          return;
-        }
-        _this.nextTimeline.resume();
-        if (dist > GAP || v > 1) {
-          return _this.nextTimeline.play();
-        } else {
-          return _this.nextTimeline.reverse();
-        }
+      return function(dist, v, distTime) {
+        return swiped(_this.nextTimeline, _this.next, dist, v, distTime);
       };
     })(this));
     gestureEvent.on("swiping down", (function(_this) {
       return function(dist) {
-        if (!_this.able) {
-          return;
-        }
-        if (!_this.prev || !_this.prevTimeline) {
-          return;
-        }
-        if (_this._isTimelineActive()) {
-          return;
-        }
-        _this.prevTimeline.pause();
-        return _this.prevTimeline.progress(dist / HEIGHT);
+        return swiping(_this.prevTimeline, _this.prev, dist);
       };
     })(this));
     return gestureEvent.on("swipe down", (function(_this) {
-      return function(dist, v) {
-        if (!_this.able) {
-          return;
-        }
-        if (!_this.prev || !_this.prevTimeline) {
-          return;
-        }
-        if (_this._isTimelineActive()) {
-          return;
-        }
-        _this.prevTimeline.resume();
-        if (dist > GAP || v > 1) {
-          return _this.prevTimeline.play();
-        } else {
-          return _this.prevTimeline.reverse();
-        }
+      return function(dist, v, distTime) {
+        return swiped(_this.prevTimeline, _this.prev, dist, v, distTime);
       };
     })(this));
   };
@@ -410,6 +404,34 @@ FancySlide = (function(_super) {
     }
     if (this.prevTimeline && this.prevTimeline.isActive()) {
       return true;
+    }
+  };
+
+  FancySlide.prototype._enableAnimation = function(duration) {
+    var css;
+    this.isAnimating = true;
+    css = "all " + duration + "s ease-out";
+    if (this.curr) {
+      this.curr.$container[0].style.webkitTransition = css;
+    }
+    if (this.prev) {
+      this.prev.$container[0].style.webkitTransition = css;
+    }
+    if (this.next) {
+      return this.next.$container[0].style.webkitTransition = css;
+    }
+  };
+
+  FancySlide.prototype._disableAnimation = function() {
+    this.isAnimating = false;
+    if (this.curr) {
+      this.curr.$container[0].style.webkitTransition = "";
+    }
+    if (this.prev) {
+      this.prev.$container[0].style.webkitTransition = "";
+    }
+    if (this.next) {
+      return this.next.$container[0].style.webkitTransition = "";
     }
   };
 
@@ -465,9 +487,9 @@ $window.on("touchend", function(event) {
   absDistY = Math.abs(distY);
   velocity = absDistY / distTime;
   if (distY < 0) {
-    return gestureEvent.emit("swipe up", absDistY, velocity);
+    return gestureEvent.emit("swipe up", absDistY, velocity, distTime);
   } else {
-    return gestureEvent.emit("swipe down", absDistY, velocity);
+    return gestureEvent.emit("swipe down", absDistY, velocity, distTime);
   }
 });
 
@@ -542,7 +564,7 @@ IntroducePage = (function(_super) {
   function IntroducePage(data) {
     this.tpl = tpl;
     this.data = data || {};
-    this.tl = new TimelineMax;
+    this.tl = new TimelineLite;
     this.render();
     this.$padding = this.$dom.find("div.padding");
     this.tl.to(this.$padding, 0.5, {
@@ -566,7 +588,7 @@ IntroducePage = (function(_super) {
   };
 
   IntroducePage.prototype._reset = function() {
-    return TweenMax.set(this.$padding, {
+    return TweenLite.set(this.$padding, {
       "x": -300,
       "autoAlpha": 0
     });

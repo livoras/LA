@@ -11,7 +11,7 @@ IntroducePage = (function(_super) {
   function IntroducePage(data) {
     this.tpl = tpl;
     this.data = data || {};
-    this.tl = new TimelineMax;
+    this.tl = new TimelineLite;
     this.render();
     this.$padding = this.$dom.find("div.padding");
     this.tl.to(this.$padding, 0.5, {
@@ -35,7 +35,7 @@ IntroducePage = (function(_super) {
   };
 
   IntroducePage.prototype._reset = function() {
-    return TweenMax.set(this.$padding, {
+    return TweenLite.set(this.$padding, {
       "x": -300,
       "autoAlpha": 0
     });

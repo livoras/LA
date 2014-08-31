@@ -26,8 +26,8 @@ $window.on "touchend", (event)->
     distY = currentPos.y - startPos.y
     absDistY = Math.abs(distY)
     velocity = absDistY / distTime
-    if distY < 0 then gestureEvent.emit "swipe up", absDistY, velocity 
-    else gestureEvent.emit "swipe down", absDistY, velocity 
+    if distY < 0 then gestureEvent.emit "swipe up", absDistY, velocity, distTime
+    else gestureEvent.emit "swipe down", absDistY, velocity, distTime
 
 getPos = (event)->
     x = event.clientX or event.touches[0].clientX
